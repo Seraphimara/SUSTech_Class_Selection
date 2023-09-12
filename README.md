@@ -24,7 +24,7 @@
 ## 更新
 最后一次**检测可用**是2023-09-12，检测结果是 **可用**  
 - 如果您本地有python3.7+环境并希望手动运行/修改代码[访问源代码](https://github.com/Seraphimara/SUSTech_Class_Selection/blob/master/main.py)  
-- 如果您本地没有python环境，您可以[使用windows打包版](https://github.com/GhostFrankWu/SUSTech_Tools/releases/tag/v3.1RC1)  
+- 如果您本地没有python环境，您可以[使用windows打包版](https://github.com/Seraphimara/SUSTech_Class_Selection/releases/tag/V1.0)  
 
 ## 声明
 
