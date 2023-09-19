@@ -15,6 +15,7 @@ from re import findall
 from json import loads
 from colorama import init
 from getpass import getpass
+import time
 
 head = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.0.0 Safari/537.36",
@@ -95,7 +96,7 @@ def getinfo(semester_data):
     return course_list
 
 
-def submit(semester_data, course):
+def submit(semester_data, course, stop_event):
     """ 用于向tis发送喵课的请求
     本段函数会在多线程中调用，因为我不知道python神奇的GIL到底会在什么时候干预，所以尽量不用全局变量会共享的变量
     （什么，购物车是怎么回事？那首先排除教务系统是个魔改的电商项目）"""
@@ -109,7 +110,7 @@ def submit(semester_data, course):
         "p_id": course[0],  # 课程id
         "p_sfxsgwckb": 1,  # 固定
     }
-    while True:
+    while not stop_event.is_set():
         req = requests.post('https://tis.sustech.edu.cn/Xsxk/addGouwuche', data=data, headers=head, verify=False,timeout=(5,10))
         if req == None:
             print("[\x1b[0;30m-\x1b[0m]\t\t\t"+"未响应！")
@@ -175,20 +176,25 @@ if __name__ == '__main__':
     # 下面获取课程信息
     print("[\x1b[0;36m!\x1b[0m] " + "从服务器下载课程信息，请稍等...")
     postList = getinfo(semester_info)
+    stop_event = threading.Event()
     threads = []
 
     # 喵课主逻辑
     for c_id in postList:
         try:
             for _ in range(5):#修改数字5可以改变抢每门课的线程数
-                thread = threading.Thread(target=submit, args=(semester_info, c_id))
-                thread.start()
+                thread = threading.Thread(target=submit, args=(semester_info, c_id, stop_event))
                 threads.append(thread)
+                thread.start()
         except:
             print("线程异常")
-
+    #设置运行线程时长
+    time.sleep(180)
+    stop_event.set()
     # 等待所有线程完成
     for thread in threads:
         thread.join()
+
+    print("[\x1b[0;30m-\x1b[0m]\t\t\t" + "所有线程结束！")
 
 
